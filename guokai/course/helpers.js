@@ -2,41 +2,21 @@
 window.HELPERS = {
   // 等待元素加载辅助函数
   whenForKeyElements: function(selector, callback) {
-    const targetNode = document.body;
-    const config = { childList: true, subtree: true, attributes: true };
-
-    let previousElement = null;
-
-    function checkForElements() {
-      const element = document.querySelector(selector);
-      if (element && element !== previousElement) {
-        callback(element);
-        previousElement = element;
-      }
+    const element = document.querySelector(selector);
+    if (element) {
+      callback(element);
+      return;
     }
 
-    // 立即检查一次
-    checkForElements();
-
     const observer = new MutationObserver((mutationsList, observer) => {
-      let shouldCheck = false;
-
-      // 检查变化是否与我们关心的选择器相关
-      for (let mutation of mutationsList) {
-        if (mutation.type === "childList" || mutation.type === "attributes") {
-          shouldCheck = true;
-          break;
-        }
-      }
-
-      if (shouldCheck) {
-        checkForElements();
+      const element = document.querySelector(selector);
+      if (element) {
+        callback(element);
+        observer.disconnect();
       }
     });
 
-    observer.observe(targetNode, config);
-
-    return () => observer.disconnect();
+    observer.observe(document.body, { childList: true, subtree: true });
   },
 
   // 获取当前ActivityId

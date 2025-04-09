@@ -118,14 +118,6 @@ window.UI = {
             "bg-red-500 hover:bg-red-600"
           )}
         </div>
-        
-        <div class="space-y-3">
-          ${this.createCheckbox(
-            "auto-process",
-            "自动处理",
-            window.configProxy.autoProcessEnabled
-          )}
-        </div>
       </div>
     `;
 
@@ -195,7 +187,14 @@ window.UI = {
       },
       "fetch-completeness": {
         event: "click",
-        handler: window.HANDLER.fetchActivityRead,
+        handler: async () => {
+          try {
+            const completeness = await window.HANDLER.fetchActivityRead();
+            window.UI.updateCompletenessDisplay(completeness);
+          } catch (error) {
+            window.HELPERS.log(`查询完成度失败: ${error.message}`, "error");
+          }
+        },
       },
       "next-btn": { event: "click", handler: window.HANDLER.clickNextButton },
       "dark-mode": {
@@ -216,8 +215,16 @@ window.UI = {
             autoBtn.classList.toggle("ring-green-500", window.configProxy.autoProcessEnabled);
           }
           if (window.configProxy.autoProcessEnabled) {
+            // 重置状态显示
+            const progressDisplay = document.getElementById("progress-display");
+            const completenessDisplay = document.getElementById("completeness-display");
+            if (progressDisplay) progressDisplay.textContent = "0%";
+            if (completenessDisplay) completenessDisplay.textContent = "未知";
+            
             window.STATE.updateStatus(`手动触发自动处理`);
             window.HANDLER.executeActionByPageType();
+          } else {
+            window.HANDLER.stopProcessing();
           }
         },
       },
@@ -237,11 +244,7 @@ window.UI = {
 
     // 添加倒计时更新
     setInterval(() => {
-      const countdownDisplay = document.getElementById("countdown-display");
-      if (countdownDisplay && window.configProxy.autoProcessEnabled) {
-        const countdown = window.HANDLER.getNextActionCountdown();
-        countdownDisplay.textContent = countdown > 0 ? countdown : "-";
-      }
+      this.updateCountdownDisplay();
     }, 1000);
 
     // 添加音量控制
@@ -389,5 +392,14 @@ window.UI = {
       document.removeEventListener("mousemove", drag);
       document.removeEventListener("mouseup", stopDragging);
     };
+  },
+
+  // 更新倒计时显示
+  updateCountdownDisplay: function() {
+    const countdownDisplay = document.getElementById("countdown-display");
+    if (countdownDisplay) {
+      const countdown = window.STATE.processCountdown ? window.STATE.getCurrentCountdown() : "-";
+      countdownDisplay.textContent = countdown;
+    }
   },
 };

@@ -15,6 +15,9 @@ window.STATE = {
   processCountdown: null,
   checkInterval: null,
 
+  // 当前倒计时值
+  currentCountdown: 0,
+
   // 获取上次动作时间
   getLastActionTime: function() {
     return this.lastActionTime || Date.now();
@@ -54,18 +57,39 @@ window.STATE = {
 
   // 更新倒计时的函数
   startProcessCountdown: function(seconds, callback) {
-    clearInterval(this.processCountdown);
+    // 确保清除之前的倒计时
+    this.clearCountdowns();
+    
+    this.currentCountdown = seconds;
     this.updateCountdownDisplay(seconds);
     this.processCountdown = setInterval(() => {
-      seconds--;
-      console.log("倒计时: ", seconds);
-      if (seconds >= 0) {
-        this.updateCountdownDisplay(seconds);
+      this.currentCountdown--;
+      if (this.currentCountdown >= 0) {
+        this.updateCountdownDisplay(this.currentCountdown);
       } else {
+        this.clearCountdowns();
         callback?.();
-        clearInterval(this.processCountdown);
       }
     }, 1000);
+  },
+
+  // 获取当前倒计时值
+  getCurrentCountdown: function() {
+    return this.currentCountdown;
+  },
+
+  // 清除所有倒计时
+  clearCountdowns: function() {
+    if (this.processCountdown) {
+      clearInterval(this.processCountdown);
+      this.processCountdown = null;
+    }
+    if (this.checkInterval) {
+      clearInterval(this.checkInterval);
+      this.checkInterval = null;
+    }
+    this.currentCountdown = 0;
+    this.updateCountdownDisplay("-");
   },
 
   // 更新倒计时显示的函数
@@ -84,5 +108,18 @@ window.STATE = {
   // 获取当前状态文本
   getCurrentStatus: function() {
     return this.currentStatus;
+  },
+
+  // 重置状态
+  resetState: function() {
+    this.currentState = this.State.IDLE;
+    this.currentStatus = "就绪";
+    this.updateStatusDisplay();
+    this.clearCountdowns();
   }
-}; 
+};
+
+// 页面加载时重置状态
+window.addEventListener('load', () => {
+  window.STATE.resetState();
+}); 
