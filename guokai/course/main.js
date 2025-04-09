@@ -4,15 +4,15 @@
 // @version      2024-10-12
 // @description  国开刷课辅助工具，支持自动完成课程
 // @author       You
-// @match        https://lms.ouchn.cn/course/*/learning-activity/full-screen
+// @match        https://lms.ouchn.cn/course/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=ouchn.cn
 // @grant        none
-// @require      https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4
-// @require      https://cloudbase-100009281119.coding.net/public/tampermonkey/Tampermonkey/git/raw/main/guokai/course/config.js
-// @require      https://cloudbase-100009281119.coding.net/public/tampermonkey/Tampermonkey/git/raw/main/guokai/course/state.js
-// @require      https://cloudbase-100009281119.coding.net/public/tampermonkey/Tampermonkey/git/raw/main/guokai/course/helpers.js
-// @require      https://cloudbase-100009281119.coding.net/public/tampermonkey/Tampermonkey/git/raw/main/guokai/course/ui.js
-// @require      https://cloudbase-100009281119.coding.net/public/tampermonkey/Tampermonkey/git/raw/main/guokai/course/pageHandler.js
+// @require      https://cdn.tailwindcss.com
+// @require      https://raw.githubusercontent.com/sichang824/tampermonkey/main/guokai/course/config.js
+// @require      https://raw.githubusercontent.com/sichang824/tampermonkey/main/guokai/course/state.js
+// @require      https://raw.githubusercontent.com/sichang824/tampermonkey/main/guokai/course/helpers.js
+// @require      https://raw.githubusercontent.com/sichang824/tampermonkey/main/guokai/course/ui.js
+// @require      https://raw.githubusercontent.com/sichang824/tampermonkey/main/guokai/course/pageHandler.js
 // ==/UserScript==
 
 /**
@@ -31,6 +31,8 @@
  * 3. 访问国开大学课程页面
  * 4. 在页面右上角会出现控制面板
  * 5. 点击"自动处理"按钮开始刷课
+ *
+ * GitHub仓库: https://github.com/sichang824/tampermonkey
  */
 
 (function () {
@@ -42,56 +44,121 @@
     const style = document.createElement("style");
     style.setAttribute("type", "text/tailwindcss");
     style.textContent = `
-      /* 自定义主题色 */
-      @theme {
-        --color-primary: #3b82f6;
-        --color-primary-hover: #2563eb;
-        --color-secondary: #6b7280;
-        --color-success: #10b981;
-        --color-danger: #ef4444;
-        --color-warning: #f59e0b;
+      @tailwind base;
+      @tailwind components;
+      @tailwind utilities;
+
+      @layer components {
+        /* 自定义主题色 */
+        .bg-primary {
+          @apply bg-blue-500;
+        }
+        .bg-primary-hover {
+          @apply bg-blue-600;
+        }
+        .bg-secondary {
+          @apply bg-gray-500;
+        }
+        .bg-success {
+          @apply bg-green-500;
+        }
+        .bg-danger {
+          @apply bg-red-500;
+        }
+        .bg-warning {
+          @apply bg-yellow-500;
+        }
+        
+        .text-primary {
+          @apply text-blue-500;
+        }
+        .text-primary-hover {
+          @apply text-blue-600;
+        }
+        .text-secondary {
+          @apply text-gray-500;
+        }
+        .text-success {
+          @apply text-green-500;
+        }
+        .text-danger {
+          @apply text-red-500;
+        }
+        .text-warning {
+          @apply text-yellow-500;
+        }
+
+        /* 自定义工具类 */
+        .gk-btn {
+          @apply px-2 py-1 rounded text-sm bg-primary text-white hover:bg-primary-hover transition-colors;
+        }
+
+        /* 滑块样式 */
+        .gk-range {
+          @apply w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer;
+        }
+
+        .gk-range::-webkit-slider-thumb {
+          @apply appearance-none w-4 h-4 rounded-full bg-primary;
+        }
+
+        /* 控制面板样式 */
+        .control-panel {
+          @apply fixed top-4 right-4 z-50 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-4 min-w-[300px] border border-gray-200 dark:border-gray-700;
+        }
+
+        .control-panel * {
+          @apply box-border font-sans;
+        }
+
+        .control-panel-title {
+          @apply text-lg font-semibold mb-4 text-gray-800 dark:text-white;
+        }
+
+        .control-panel-section {
+          @apply mb-4;
+        }
+
+        .control-panel-label {
+          @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1;
+        }
+
+        .control-panel-input {
+          @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white;
+        }
+
+        .control-panel-button {
+          @apply w-full px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover transition-colors;
+        }
+
+        .control-panel-status {
+          @apply text-sm text-gray-600 dark:text-gray-400 mt-2;
+        }
       }
-      
-      /* 确保面板样式不受页面影响 */
-      #control-panel * {
-        box-sizing: border-box;
-        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      }
-      
-      /* 确保不同站点的样式不会覆盖我们的样式 */
-      #control-panel {
-        font-size: 14px;
-        line-height: 1.5;
-      }
-      
-      /* 自定义工具类 */
-      .gk-btn {
-        @apply px-2 py-1 rounded text-sm bg-primary text-white hover:bg-primary-hover transition-colors;
-      }
-      
-      /* 滑块样式 */
-      #control-panel input[type="range"] {
-        @apply w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer;
-      }
-      
-      #control-panel input[type="range"]::-webkit-slider-thumb {
-        @apply appearance-none w-4 h-4 rounded-full bg-primary;
-      }
-      
+
       /* 隐藏冗余页面元素 */
       .sidebar-collapse-toggle,
       .chapter-name,
       .learning-activity-nav-collapse-toggle {
-        display: none !important;
+        @apply hidden;
       }
       
       /* 优化页面显示 */
       .learning-activity-nav-expand .learning-activity-nav {
-        width: 300px !important;
+        @apply w-[300px];
       }
       
       .learning-activity-nav-expand #activity-container {
-        margin-left: 300px !important;
+        @apply ml-[300px];
+      }
+
+      .learning-activity-body-expand .learning-activity-body {
+        @apply pl-0;
+      }
+
+      .learning-activity-app.learning-activity-nav-expand .header,
+      .learning-activity-app.learning-activity-nav-expand .footer {
+        @apply pl-[300px];
       }
     `;
     document.head.appendChild(style);
@@ -161,19 +228,6 @@
 
   // 优化页面显示
   function optimizePage() {
-    // 隐藏不必要的元素
-    const style = document.createElement("style");
-    style.innerHTML = `
-      .learning-activity-body-expand .learning-activity-body {
-        padding-left: 0 !important;
-      }
-      .learning-activity-app.learning-activity-nav-expand .header,
-      .learning-activity-app.learning-activity-nav-expand .footer {
-        padding-left: 300px !important;
-      }
-    `;
-    document.head.appendChild(style);
-
     // 自动展开侧边栏
     const expandButton = document.querySelector(".sidebar-collapse-toggle");
     if (expandButton) {
