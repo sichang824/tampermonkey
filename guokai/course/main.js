@@ -4,7 +4,7 @@
 // @version      2024-10-12
 // @description  国开刷课辅助工具，支持自动完成课程
 // @author       You
-// @match        https://lms.ouchn.cn/course/*
+// @match        https://lms.ouchn.cn/course/*/learning-activity/full-screen
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=ouchn.cn
 // @grant        none
 // @require      https://cdn.tailwindcss.com
