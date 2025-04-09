@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>国开刷课助手演示</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
+      --color-primary: #3b82f6;
+      --color-primary-hover: #2563eb;
+      --color-secondary: #6b7280;
+      --color-success: #10b981;
+      --color-danger: #ef4444;
+      --color-warning: #f59e0b;
+    }
+
+    /* 自定义工具类 */
+    .gk-btn {
+      @apply px-2 py-1 rounded text-sm bg-primary text-white hover:bg-primary-hover transition-colors;
+    }
+
+    /* 滑块样式 */
+    input[type="range"] {
+      @apply w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      @apply appearance-none w-4 h-4 rounded-full bg-primary;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 p-6 flex justify-center">
+  <div class="w-full max-w-2xl">
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+      <h1 class="text-2xl font-bold mb-4 text-gray-800">国开刷课助手 - Tailwind CSS 演示</h1>
+      <p class="text-gray-600 mb-4">
+        这是一个使用 Tailwind CSS Play CDN 的演示页面，展示了如何在不需要构建步骤的情况下使用 Tailwind CSS。
+      </p>
+
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <button class="gk-btn">自定义按钮</button>
+        <button class="px-2 py-1 rounded bg-warning text-white hover:bg-warning/80 transition-colors">警告按钮</button>
+        <button class="px-2 py-1 rounded bg-success text-white hover:bg-success/80 transition-colors">成功按钮</button>
+        <button class="px-2 py-1 rounded bg-danger text-white hover:bg-danger/80 transition-colors">危险按钮</button>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="volume">
+          音量控制
+        </label>
+        <input id="volume" type="range" min="0" max="100" value="50" class="mb-2" />
+        <div class="text-right text-sm text-gray-600">当前值: <span id="volume-value">50</span>%</div>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="speed">
+          播放速度
+        </label>
+        <input id="speed" type="range" min="1" max="16" value="2" class="mb-2" />
+        <div class="text-right text-sm text-gray-600">当前速度: <span id="speed-value">2</span>x</div>
+      </div>
+
+      <div class="flex items-center mb-4">
+        <input id="dark-mode" type="checkbox" class="mr-2">
+        <label for="dark-mode" class="text-sm text-gray-700 cursor-pointer">启用暗黑模式</label>
+      </div>
+    </div>
+
+    <div id="control-panel"
+      class="fixed top-3 right-3 rounded-lg shadow-lg z-50 w-64 font-sans transition-colors duration-300 bg-white text-gray-800 p-4">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-lg font-bold">控制面板</h3>
+        <button id="toggle-panel"
+          class="px-2 py-1 text-xs rounded cursor-pointer bg-gray-200 text-gray-700 border-none">隐藏</button>
+      </div>
+      <div id="panel-body">
+        <div class="space-y-2 mb-3">
+          <div class="mb-1">当前状态: <span class="font-medium">就绪</span></div>
+          <div class="mb-1">进度: <span class="font-medium">0</span>%</div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <button class="px-2 py-1 text-sm rounded bg-primary hover:bg-primary-hover text-white">开始</button>
+          <button class="px-2 py-1 text-sm rounded bg-danger hover:bg-danger/80 text-white">停止</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 简单的交互逻辑
+    document.addEventListener('DOMContentLoaded', () => {
+      // 音量滑块
+      const volumeSlider = document.getElementById('volume');
+      const volumeValue = document.getElementById('volume-value');
+
+      volumeSlider.addEventListener('input', () => {
+        volumeValue.textContent = volumeSlider.value;
+      });
+
+      // 速度滑块
+      const speedSlider = document.getElementById('speed');
+      const speedValue = document.getElementById('speed-value');
+
+      speedSlider.addEventListener('input', () => {
+        speedValue.textContent = speedSlider.value;
+      });
+
+      // 暗黑模式切换
+      const darkModeToggle = document.getElementById('dark-mode');
+      const body = document.body;
+      const panel = document.getElementById('control-panel');
+
+      darkModeToggle.addEventListener('change', () => {
+        if (darkModeToggle.checked) {
+          body.classList.add('bg-gray-900');
+          body.classList.add('text-white');
+          panel.classList.remove('bg-white', 'text-gray-800');
+          panel.classList.add('bg-gray-800', 'text-white');
+        } else {
+          body.classList.remove('bg-gray-900');
+          body.classList.remove('text-white');
+          panel.classList.remove('bg-gray-800', 'text-white');
+          panel.classList.add('bg-white', 'text-gray-800');
+        }
+      });
+
+      // 面板切换
+      const toggleBtn = document.getElementById('toggle-panel');
+      const panelBody = document.getElementById('panel-body');
+
+      toggleBtn.addEventListener('click', () => {
+        const isHidden = panelBody.style.display === 'none';
+        panelBody.style.display = isHidden ? 'block' : 'none';
+        toggleBtn.textContent = isHidden ? '隐藏' : '显示';
+      });
+    });
+  </script>
+</body>
+
+</html>
