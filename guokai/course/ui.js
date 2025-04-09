@@ -10,51 +10,48 @@ window.UI = {
     panel.classList.add(window.configProxy.isDarkMode ? 'dark' : 'light');
     
     const panelContent = `
-      <div class="flex items-center justify-end mb-2 p-2">
-        <button id="toggle-panel" class="control-panel-button mr-2">隐藏</button>
-        <div id="drag-handle" class="absolute top-0 right-0 w-5 h-5 bg-secondary rounded-tr-lg cursor-move"></div>
-      </div>
       <div id="panel-body" class="p-3">
-        <h3 class="control-panel-title">国开刷课助手</h3>
+        <h3 id="panel-title" class="control-panel-title cursor-move">国开刷课助手</h3>
         <div class="control-panel-section">
-          <div class="control-panel-label">当前类型: <span id="page-type-display" class="font-medium">未知</span></div>
-          <div class="control-panel-label">当前状态: <span id="current-status" class="font-medium">${window.STATE.getCurrentStatus()}</span></div>
+          <div class="control-panel-label">类型: <span id="page-type-display" class="font-medium">未知</span></div>
+          <div class="control-panel-label">状态: <span id="current-status" class="font-medium">${window.STATE.getCurrentStatus()}</span></div>
           <div class="control-panel-label">进度: <span id="progress-display" class="font-medium">0</span>%</div>
         </div>
         
         <div class="control-panel-section">
-          <label class="control-panel-label">音量:</label>
-          <div class="flex items-center">
-            <input type="range" id="volume-slider" min="0" max="100" value="${
-              window.configProxy.volume
-            }" class="gk-range">
-            <span id="volume-display" class="ml-2">${window.configProxy.volume}</span>%
+          <div class="flex items-center justify-between">
+            <label class="control-panel-label">音量:</label>
+            <div class="flex items-center">
+              <input type="range" id="volume-slider" min="0" max="100" value="${
+                window.configProxy.volume
+              }" class="gk-range w-24">
+              <span id="volume-display" class="ml-2 text-sm">${window.configProxy.volume}</span>
+            </div>
           </div>
-        </div>
-        
-        <div class="control-panel-section">
-          <label class="control-panel-label">播放速度:</label>
-          <div class="flex items-center">
-            <input type="range" id="speed-slider" min="1" max="16" value="${
-              window.configProxy.playbackSpeed
-            }" class="gk-range">
-            <span id="speed-display" class="ml-2">${window.configProxy.playbackSpeed}</span>x
+          <div class="flex items-center justify-between mt-2">
+            <label class="control-panel-label">速度:</label>
+            <div class="flex items-center">
+              <input type="range" id="speed-slider" min="1" max="16" value="${
+                window.configProxy.playbackSpeed
+              }" class="gk-range w-24">
+              <span id="speed-display" class="ml-2 text-sm">${window.configProxy.playbackSpeed}x</span>
+            </div>
           </div>
         </div>
         
         <div class="control-panel-section">
           <div class="control-panel-label">完成度: <span id="completeness-display" class="font-medium">未知</span></div>
-          <div class="control-panel-label">自动处理: <span id="auto-process-status" class="font-medium">${
+          <div class="control-panel-label">自动: <span id="auto-process-status" class="font-medium">${
             window.configProxy.autoProcessEnabled ? "开启" : "关闭"
           }</span></div>
-          <div class="control-panel-label">下一步倒计时: <span id="countdown-display" class="font-medium">-</span></div>
+          <div class="control-panel-label">倒计时: <span id="countdown-display" class="font-medium">-</span></div>
         </div>
         
         <div class="grid grid-cols-2 gap-2 mb-3">
-          ${this.createButton("fetch-completeness", "获取完成度")}
+          ${this.createButton("fetch-completeness", "完成度")}
           ${this.createButton("next-btn", "下一个")}
-          ${this.createButton("auto-process-btn", "自动处理")}
-          ${this.createButton("complete-video", "完成视频")}
+          ${this.createButton("auto-process-btn", "自动")}
+          ${this.createButton("complete-video", "完成")}
           ${this.createButton("stop-btn", "停止", "bg-danger hover:bg-danger/80")}
         </div>
         
@@ -73,10 +70,6 @@ window.UI = {
       const panelBody = document.getElementById('panel-body');
       if (panelBody) {
         panelBody.classList.add('hidden');
-        const toggleBtn = document.getElementById('toggle-panel');
-        if (toggleBtn) {
-          toggleBtn.textContent = '显示';
-        }
       }
     }
 
@@ -109,7 +102,7 @@ window.UI = {
     const self = this;
     
     const eventMap = {
-      "drag-handle": {
+      "panel-title": {
         event: "mousedown",
         handler: (e) => this.makeDraggable(panel, e.target),
       },
@@ -193,21 +186,6 @@ window.UI = {
             window.STATE.updateStatus("设置播放速度失败");
           }
         }
-      });
-    }
-
-    // 添加面板切换功能
-    const toggleBtn = document.getElementById("toggle-panel");
-    const panelBody = document.getElementById("panel-body");
-
-    if (toggleBtn && panelBody) {
-      toggleBtn.addEventListener("click", () => {
-        const isHidden = panelBody.classList.contains('hidden');
-        panelBody.classList.toggle('hidden');
-        toggleBtn.textContent = isHidden ? "隐藏" : "显示";
-
-        // 保存状态到配置
-        window.configProxy.isPanelHidden = !isHidden;
       });
     }
   },
