@@ -186,6 +186,8 @@ window.HANDLER = {
     window.STATE.updateStatus("处理文本页面");
     window.HELPERS.log("处理文本类型页面");
     window.scrollTo(0, document.body.scrollHeight);
+    await window.HELPERS.sleep(3000);
+    await this.waitComplete();
     await this.clickNextButton();
   },
 
@@ -193,6 +195,8 @@ window.HANDLER = {
   handleDiscussionPage: async function () {
     window.STATE.updateStatus("处理讨论页面");
     window.HELPERS.log("处理讨论类型页面");
+    await window.HELPERS.sleep(3000);
+    await this.waitComplete();
     await this.clickNextButton();
   },
 
@@ -200,6 +204,8 @@ window.HANDLER = {
   handleSurveyPage: async function () {
     window.STATE.updateStatus("处理问卷页面");
     window.HELPERS.log("处理问卷类型页面");
+    await window.HELPERS.sleep(3000);
+    await this.waitComplete();
     await this.clickNextButton();
   },
 
