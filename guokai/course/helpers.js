@@ -4,7 +4,7 @@ window.HELPERS = {
   whenForKeyElements: function (
     selector,
     callback,
-    timeout = 10000,
+    timeout = 20000,
     fallback = null
   ) {
     const element = document.querySelector(selector);

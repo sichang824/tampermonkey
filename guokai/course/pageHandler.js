@@ -236,7 +236,7 @@ window.HANDLER = {
             this.handleVideoPage();
           }
         },
-        10000,
+        20000,
         () => {
           window.HELPERS.log("等待视频元素超时", "warn");
           window.location.reload();
