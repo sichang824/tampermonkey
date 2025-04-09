@@ -7,6 +7,7 @@ window.HELPERS = {
     timeout = 60000,
     fallback = null
   ) {
+    window.HELPERS.log(`等待元素: ${selector}，超时时间: ${timeout}ms`, "info");
     const element = document.querySelector(selector);
     if (element) {
       callback(element);
