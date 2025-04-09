@@ -84,12 +84,17 @@ window.HANDLER = {
   },
 
   waitComplete: async function () {
+    if (window.configProxy.autoProcessEnabled === false) {
+      window.HELPERS.log("自动处理已关闭，跳过等待完成", "warn");
+      return true;
+    }
+
     let retryCount = 0;
     const maxRetries = 3;
     let completeness = 0;
     const baseDelay = 5000; // 基础延迟时间5秒
 
-    while (completeness <= 80) {
+    while (completeness <= 80 && retryCount < maxRetries) {
       try {
         completeness = await this.fetchActivityRead();
         window.HELPERS.log(`当前完成度: ${completeness}%`);
@@ -98,28 +103,22 @@ window.HANDLER = {
           window.HELPERS.log("完成度达到要求，继续处理");
           return true;
         }
-
-        // 计算递增的延迟时间：5s, 10s, 15s
-        const delay = baseDelay * (retryCount + 1);
-        window.HELPERS.log(`等待 ${delay / 1000} 秒后重试`);
-        await window.HELPERS.sleep(delay);
       } catch (error) {
         window.HELPERS.log(`查询完成度失败: ${error.message}`, "warn");
-        retryCount++;
-
-        if (retryCount >= maxRetries) {
-          window.HELPERS.log("达到最大重试次数，继续处理", "warn");
-          return false;
-        }
-
-        // 计算递增的延迟时间：5s, 10s, 15s
-        const delay = baseDelay * (retryCount + 1);
-        window.HELPERS.log(
-          `等待 ${delay / 1000} 秒后重试 (${retryCount}/${maxRetries})`
-        );
-        await window.HELPERS.sleep(delay);
       }
+
+      retryCount++;
+      if (retryCount >= maxRetries) {
+        window.HELPERS.log("达到最大重试次数，继续处理", "warn");
+        window.location.reload();
+        return false;
+      }
+
+      const delay = baseDelay * retryCount;
+      window.HELPERS.log(`等待 ${delay / 1000} 秒后重试 (${retryCount}/${maxRetries})`);
+      await window.HELPERS.sleep(delay);
     }
+
     return false;
   },
 
@@ -186,8 +185,6 @@ window.HANDLER = {
     window.STATE.updateStatus("处理文本页面");
     window.HELPERS.log("处理文本类型页面");
     window.scrollTo(0, document.body.scrollHeight);
-    await window.HELPERS.sleep(3000);
-    await this.waitComplete();
     await this.clickNextButton();
   },
 
@@ -195,8 +192,6 @@ window.HANDLER = {
   handleDiscussionPage: async function () {
     window.STATE.updateStatus("处理讨论页面");
     window.HELPERS.log("处理讨论类型页面");
-    await window.HELPERS.sleep(3000);
-    await this.waitComplete();
     await this.clickNextButton();
   },
 
@@ -204,8 +199,6 @@ window.HANDLER = {
   handleSurveyPage: async function () {
     window.STATE.updateStatus("处理问卷页面");
     window.HELPERS.log("处理问卷类型页面");
-    await window.HELPERS.sleep(3000);
-    await this.waitComplete();
     await this.clickNextButton();
   },
 
@@ -369,7 +362,9 @@ window.HANDLER = {
     const activityId = window.HELPERS.getCurrentActivityId();
     let retryCount = 0;
     const maxRetries = 3;
+    const baseDelay = 5000;
 
+    window.STATE.updateStatus("更新视频信息");
     window.HELPERS.log(`更新视频信息，时长: ${end}秒`);
 
     while (retryCount < maxRetries) {
@@ -400,33 +395,36 @@ window.HANDLER = {
         );
 
         if (response.ok) {
+          window.STATE.updateStatus("视频信息更新成功");
           window.HELPERS.log("视频信息更新成功");
           return true;
-        } else {
-          retryCount++;
-          window.HELPERS.log(
-            `视频信息更新失败: ${response.status} (${retryCount}/${maxRetries})`,
-            "warn"
-          );
-          if (retryCount < maxRetries) {
-            await window.HELPERS.sleep(5000);
-            continue;
-          }
         }
-      } catch (error) {
-        retryCount++;
+
+        window.STATE.updateStatus("视频信息更新失败");
         window.HELPERS.log(
-          `视频信息更新出错: ${error.message} (${retryCount}/${maxRetries})`,
+          `视频信息更新失败: ${response.status} (${retryCount + 1}/${maxRetries})`,
+          "warn"
+        );
+      } catch (error) {
+        window.STATE.updateStatus("视频信息更新出错");
+        window.HELPERS.log(
+          `视频信息更新出错: ${error.message} (${retryCount + 1}/${maxRetries})`,
           "error"
         );
-        if (retryCount < maxRetries) {
-          await window.HELPERS.sleep(5000);
-          continue;
-        }
       }
+
+      retryCount++;
+      if (retryCount >= maxRetries) {
+        window.HELPERS.log("达到最大重试次数，刷新页面", "warn");
+        window.location.reload();
+        return false;
+      }
+
+      const delay = baseDelay * retryCount;
+      window.HELPERS.log(`等待 ${delay / 1000} 秒后重试`);
+      await window.HELPERS.sleep(delay);
     }
 
-    window.HELPERS.log("达到最大重试次数，继续处理", "warn");
     return false;
   },
 
