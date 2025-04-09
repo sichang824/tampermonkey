@@ -356,5 +356,24 @@ window.HANDLER = {
     // 更新UI以反映停止状态
     window.STATE.updateCountdownDisplay("-"); // 重置倒计时显示
     window.UI.updateAutoProcessStatus();
+  },
+
+  // 获取下一个动作的倒计时
+  getNextActionCountdown: function() {
+    if (!window.configProxy.autoProcessEnabled) {
+      return 0;
+    }
+
+    const now = Date.now();
+    const lastActionTime = window.STATE.getLastActionTime();
+    const minDelay = window.configProxy.minDelay || 3000;
+    const maxDelay = window.configProxy.maxDelay || 5000;
+    const nextActionTime = lastActionTime + minDelay;
+    
+    if (now >= nextActionTime) {
+      return 0;
+    }
+    
+    return Math.ceil((nextActionTime - now) / 1000);
   }
 }; 

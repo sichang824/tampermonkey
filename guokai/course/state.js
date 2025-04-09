@@ -15,6 +15,16 @@ window.STATE = {
   processCountdown: null,
   checkInterval: null,
 
+  // 获取上次动作时间
+  getLastActionTime: function() {
+    return this.lastActionTime || Date.now();
+  },
+
+  // 更新上次动作时间
+  updateLastActionTime: function() {
+    this.lastActionTime = Date.now();
+  },
+
   // 修改状态的函数
   changeState: function(newState) {
     this.currentState = newState;

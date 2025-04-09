@@ -48,117 +48,11 @@
       @tailwind components;
       @tailwind utilities;
 
-      @layer components {
-        /* 自定义主题色 */
-        .bg-primary {
-          @apply bg-blue-500;
-        }
-        .bg-primary-hover {
-          @apply bg-blue-600;
-        }
-        .bg-secondary {
-          @apply bg-gray-500;
-        }
-        .bg-success {
-          @apply bg-green-500;
-        }
-        .bg-danger {
-          @apply bg-red-500;
-        }
-        .bg-warning {
-          @apply bg-yellow-500;
-        }
-        
-        .text-primary {
-          @apply text-blue-500;
-        }
-        .text-primary-hover {
-          @apply text-blue-600;
-        }
-        .text-secondary {
-          @apply text-gray-500;
-        }
-        .text-success {
-          @apply text-green-500;
-        }
-        .text-danger {
-          @apply text-red-500;
-        }
-        .text-warning {
-          @apply text-yellow-500;
-        }
-
-        /* 自定义工具类 */
-        .gk-btn {
-          @apply px-2 py-1 rounded text-sm bg-primary text-white hover:bg-primary-hover transition-colors;
-        }
-
-        /* 滑块样式 */
-        .gk-range {
-          @apply w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer;
-        }
-
-        .gk-range::-webkit-slider-thumb {
-          @apply appearance-none w-4 h-4 rounded-full bg-primary;
-        }
-
-        /* 控制面板样式 */
-        .control-panel {
-          @apply fixed top-4 right-4 z-50 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-4 min-w-[300px] border border-gray-200 dark:border-gray-700;
-        }
-
-        .control-panel * {
-          @apply box-border font-sans;
-        }
-
-        .control-panel-title {
-          @apply text-lg font-semibold mb-4 text-gray-800 dark:text-white;
-        }
-
-        .control-panel-section {
-          @apply mb-4;
-        }
-
-        .control-panel-label {
-          @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1;
-        }
-
-        .control-panel-input {
-          @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white;
-        }
-
-        .control-panel-button {
-          @apply w-full px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover transition-colors;
-        }
-
-        .control-panel-status {
-          @apply text-sm text-gray-600 dark:text-gray-400 mt-2;
-        }
-      }
-
-      /* 隐藏冗余页面元素 */
-      .sidebar-collapse-toggle,
-      .chapter-name,
-      .learning-activity-nav-collapse-toggle {
-        @apply hidden;
-      }
-      
-      /* 优化页面显示 */
-      .learning-activity-nav-expand .learning-activity-nav {
-        @apply w-[300px];
-      }
-      
-      .learning-activity-nav-expand #activity-container {
-        @apply ml-[300px];
-      }
-
-      .learning-activity-body-expand .learning-activity-body {
-        @apply pl-0;
-      }
-
-      .learning-activity-app.learning-activity-nav-expand .header,
-      .learning-activity-app.learning-activity-nav-expand .footer {
-        @apply pl-[300px];
+      #control-panel {
+        position: fixed !important;
+        top: 1rem !important;
+        right: 1rem !important;
+        z-index: 9999 !important;
       }
     `;
     document.head.appendChild(style);
@@ -176,9 +70,6 @@
 
     // 初始化Tailwind
     initTailwind();
-
-    // 创建控制面板
-    window.UI.createControlPanel();
 
     // 设置初始状态
     window.STATE.changeState(window.STATE.State.IDLE);
@@ -241,6 +132,11 @@
     initialize();
     setupVideoListener();
     optimizePage();
+
+    // 确保在页面完全加载后创建面板
+    setTimeout(() => {
+      window.UI.createControlPanel();
+    }, 500);
 
     // 添加版本信息到控制台
     console.log(
