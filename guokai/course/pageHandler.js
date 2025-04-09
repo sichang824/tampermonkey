@@ -115,7 +115,9 @@ window.HANDLER = {
       }
 
       const delay = baseDelay * retryCount;
-      window.HELPERS.log(`等待 ${delay / 1000} 秒后重试 (${retryCount}/${maxRetries})`);
+      window.HELPERS.log(
+        `等待 ${delay / 1000} 秒后重试 (${retryCount}/${maxRetries})`
+      );
       await window.HELPERS.sleep(delay);
     }
 
@@ -233,6 +235,11 @@ window.HANDLER = {
             await window.HELPERS.sleep(5000);
             this.handleVideoPage();
           }
+        },
+        10000,
+        () => {
+          window.HELPERS.log("等待视频元素超时", "warn");
+          window.location.reload();
         }
       );
     });
@@ -402,13 +409,17 @@ window.HANDLER = {
 
         window.STATE.updateStatus("视频信息更新失败");
         window.HELPERS.log(
-          `视频信息更新失败: ${response.status} (${retryCount + 1}/${maxRetries})`,
+          `视频信息更新失败: ${response.status} (${
+            retryCount + 1
+          }/${maxRetries})`,
           "warn"
         );
       } catch (error) {
         window.STATE.updateStatus("视频信息更新出错");
         window.HELPERS.log(
-          `视频信息更新出错: ${error.message} (${retryCount + 1}/${maxRetries})`,
+          `视频信息更新出错: ${error.message} (${
+            retryCount + 1
+          }/${maxRetries})`,
           "error"
         );
       }
