@@ -218,20 +218,25 @@ window.HANDLER = {
           // 更新视频信息
           const updateSuccess = await this.updateVideoInfo();
 
-          if (updateSuccess) {
-            // 等待完成度达标
-            const isComplete = await this.waitComplete();
-            if (isComplete) {
-              window.HELPERS.log("视频处理完成，准备进入下一页");
-              await this.clickNextButton();
-              resolve();
-            } else {
-              window.HELPERS.log("视频完成度未达标，等待后重试", "warn");
-              await window.HELPERS.sleep(5000);
-              this.handleVideoPage();
-            }
+          if (!updateSuccess) {
+            window.HELPERS.log("视频信息更新失败，自动开始播", "warn");
+            window.UI.completeVideo();
+          }
+
+          const end = this.getVideoDuration();
+          if (end <= 0) window.location.reload();
+          const speed = this.getVideoSpeed();
+          if (speed <= 0) window.location.reload();
+          await window.HELPERS.sleep(end / speed);
+
+          // 等待完成度达标
+          const isComplete = await this.waitComplete();
+          if (isComplete) {
+            window.HELPERS.log("视频处理完成，准备进入下一页");
+            await this.clickNextButton();
+            resolve();
           } else {
-            window.HELPERS.log("视频信息更新失败，等待后重试", "warn");
+            window.HELPERS.log("视频完成度未达标，等待后重试", "warn");
             await window.HELPERS.sleep(5000);
             this.handleVideoPage();
           }
@@ -357,15 +362,27 @@ window.HANDLER = {
     }
   },
 
-  // 更新视频信息
-  updateVideoInfo: async function () {
+  getVideo: function () {
     const video = document.querySelector("video");
     if (!video) {
       window.HELPERS.log("未找到视频元素", "warn");
-      return false;
+      return null;
     }
+    return video;
+  },
 
-    const end = Math.round(video.duration) - 10;
+  getVideoDuration: function () {
+    return Math.round(this.getVideo().duration) - 1;
+  },
+
+  getVideoSpeed: function () {
+    return this.getVideo().playbackRate;
+  },
+
+  // 更新视频信息
+  updateVideoInfo: async function () {
+    const end = this.getVideoDuration();
+    if (end <= 0) return false;
     const activityId = window.HELPERS.getCurrentActivityId();
     let retryCount = 0;
     const maxRetries = 3;

@@ -109,7 +109,7 @@ window.UI = {
           )}
           ${this.createButton(
             "complete-video",
-            "完成",
+            "处理视频",
             "bg-green-500 hover:bg-green-600"
           )}
           ${this.createButton(
